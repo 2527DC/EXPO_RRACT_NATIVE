@@ -2,6 +2,33 @@
   "expo": {
     "name": "ets-employe",
     "slug": "ets-employe",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      "expo-router",
+      [
+        "@react-native-firebase/app",
+        {
+          "crashlytics_auto_collection_enabled": false,
+          "performance_auto_collection_enabled": false
+        }
+      ]
+      // If you want Firestore later, add it back only after fixing CocoaPods issues
+    ],
+    "android": {
+      "package": "com.etsemploye",
+      "googleServicesFile": "./android/app/google-services.json"
+    },
+    "ios": {
+      "bundleIdentifier": "com.etsemploye",
+      "googleServicesFile": "./ios/GoogleService-Info.plist"
+    }
   }
 }
