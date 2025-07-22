@@ -1,12 +1,12 @@
 // app/index.js (or HomeScreen.js)
 
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
-
-export default function HomeScreen() {
+import { View, Text, StyleSheet,} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+export default function TripHistory() {
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.text}>Welcome to the App!</Text>
+      <Text style={styles.text}>This is the Trip Screen</Text>
     </SafeAreaView>
   );
 }

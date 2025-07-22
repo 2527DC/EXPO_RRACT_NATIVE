@@ -1,23 +1,32 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import { useRouter } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
-import firebaseApp from '../utils/firebaseConfig';
-import { getApps } from 'firebase/app';
+import { useAuth } from '../contexts/AuthContext';
+// import { useAuth } from '@/contexts/AuthContext';
 
 export default function IndexScreen() {
-  useEffect(() => {
-    // Check if Firebase is initialized
-    if (getApps().length) {
-      console.log('✅ Firebase initialized:', firebaseApp.name);
-    } else {
-      console.warn('⚠️ Firebase not initialized!');
-    }
-  }, []);
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.loadingText}>Checking Firebase...</Text>
-    </View>
-  );
+  useEffect(() => {
+    if (!isLoading) {
+      if (isAuthenticated) {
+        router.replace('/(tabs)');
+      } else {
+        router.replace('/(auth)/login');
+      }
+    }
+  }, [isAuthenticated, isLoading]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
+
+  return null;
 }
 
 const styles = StyleSheet.create({
@@ -25,10 +34,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#f9fafb',
   },
   loadingText: {
     fontSize: 16,
-    color: '#333',
+    color: '#6b7280',
   },
 });
