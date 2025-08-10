@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import api_client from '../api/API_CIENT';
 
 
 const AuthContext = createContext(undefined);
@@ -27,69 +28,65 @@ export function AuthProvider({ children }) {
     }
   };
 
+
   const login = async (emailOrPhone, password) => {
     try {
       setIsLoading(true);
-      
-      // Simulate API call - replace with actual authentication
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data - replace with actual API response
-      const mockUser= {
-        id: '1',
-        name: 'John Doe',
-        email: emailOrPhone.includes('@') ? emailOrPhone : 'john.doe@company.com',
-        phone: emailOrPhone.includes('@') ? '+1 234 567 8900' : emailOrPhone,
-        employeeId: 'EMP001',
-        department: 'Engineering',
-        role: 'Software Developer',
+  
+      const formData = new URLSearchParams();
+      formData.append('username', emailOrPhone);
+      formData.append('password', password);
+      formData.append('device_uuid', 'test-device-uuid-1231aqs');
+      formData.append('device_name', 'Samsung A501');
+      formData.append('fcm_token', 'test-fcm-token-123');
+      formData.append('grant_type', 'password');
+      formData.append('client_id', 'dummy-client-id');
+      formData.append('client_secret', 'dummy-client-secret');
+      formData.append('force_logout', 'true');
+  
+      const response = await api_client.post(  '/employees/auth/employee/login',formData.toString(),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
+  
+      const {
+        access_token,
+        token_type,
+        employee_id,
+        employee_code,
+        username,
+        department_id,
+        department_name,
+      } = response.data;
+  
+      const userData = {
+        employee_id,
+        employee_code,
+        username,
+        department_id,
+        department_name,
       };
-
-      // Mock authentication logic
-      if (password === 'password123' || password === 'demo') {
-        await AsyncStorage.setItem('user', JSON.stringify(mockUser));
-        await AsyncStorage.setItem('authToken', 'mock-jwt-token');
-        setUser(mockUser);
-        return true;
-      }
-      
-      return false;
-    } catch (error) {
-      console.error('Login error:', error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const register = async (userData)=> {
-    try {
-      setIsLoading(true);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const newUser= {
-        id: Date.now().toString(),
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone,
-        employeeId: userData.employeeId,
-        department: userData.department,
-        role: 'Employee',
-      };
-
-      await AsyncStorage.setItem('user', JSON.stringify(newUser));
-      await AsyncStorage.setItem('authToken', 'mock-jwt-token');
-      setUser(newUser);
+  
+      // Store token & user info
+      await AsyncStorage.setItem('authToken', access_token);
+      await AsyncStorage.setItem('tokenType', token_type);
+      await AsyncStorage.setItem('user', JSON.stringify(userData));
+  
+      setUser(userData);
+  
       return true;
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Login error:', error.response?.data || error.message);
       return false;
     } finally {
       setIsLoading(false);
     }
   };
+  
+
 
   const forgotPassword = async (emailOrPhone) => {
     try {
@@ -122,7 +119,6 @@ export function AuthProvider({ children }) {
         isLoading,
         login,
         logout,
-        register,
         forgotPassword,
       }}
     >

@@ -9,42 +9,36 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-
+  Image, // Added Image import
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
-import { Mail, Phone, Lock, Eye, EyeOff, LogIn } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
-// import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { login, isLoading } = useAuth();
-  console.log(" this is the  auth data " ,login, isLoading);
+  console.log("this is the auth data", login, isLoading);
   
-  const [emailOrPhone, setEmailOrPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loginType, setLoginType] = useState('email');
 
   const handleLogin = async () => {
-    if (!emailOrPhone.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
-    const success = await login(emailOrPhone, password);
+    const success = await login(email, password);
+    console.log(" this is the success data", success);
     
     if (success) {
       router.replace('/(tabs)');
     } else {
       Alert.alert('Login Failed', 'Invalid credentials. Try password: "password123" or "demo"');
     }
-  };
-
-  const toggleLoginType = () => {
-    setLoginType(loginType === 'email' ? 'phone' : 'email');
-    setEmailOrPhone('');
   };
 
   return (
@@ -55,60 +49,28 @@ export default function LoginScreen() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <Text style={styles.title}>Welcome Back</Text>
+            {/* Added Logo Image */}
+            <Image
+              source={require('../../assets/images/logo.jpeg')} // Adjust path to your image
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.title}>MLT Corporate Solutions</Text>
             <Text style={styles.subtitle}>Sign in to your employee account</Text>
           </View>
 
           <View style={styles.form}>
-            {/* Login Type Toggle */}
-            <View style={styles.toggleContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.toggleButton,
-                  loginType === 'email' && styles.activeToggle
-                ]}
-                onPress={() => setLoginType('email')}
-              >
-                <Mail size={16} color={loginType === 'email' ? '#ffffff' : '#6b7280'} />
-                <Text style={[
-                  styles.toggleText,
-                  loginType === 'email' && styles.activeToggleText
-                ]}>
-                  Email
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.toggleButton,
-                  loginType === 'phone' && styles.activeToggle
-                ]}
-                onPress={() => setLoginType('phone')}
-              >
-                <Phone size={16} color={loginType === 'phone' ? '#ffffff' : '#6b7280'} />
-                <Text style={[
-                  styles.toggleText,
-                  loginType === 'phone' && styles.activeToggleText
-                ]}>
-                  Phone
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Email/Phone Input */}
+            {/* Email Input */}
             <View style={styles.inputContainer}>
               <View style={styles.inputIcon}>
-                {loginType === 'email' ? (
-                  <Mail size={20} color="#6b7280" />
-                ) : (
-                  <Phone size={20} color="#6b7280" />
-                )}
+                <Mail size={20} color="#6b7280" />
               </View>
               <TextInput
                 style={styles.input}
-                placeholder={loginType === 'email' ? 'Enter your email' : 'Enter your phone number'}
-                value={emailOrPhone}
-                onChangeText={setEmailOrPhone}
-                keyboardType={loginType === 'email' ? 'email-address' : 'phone-pad'}
+                placeholder="Enter your email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
               />
@@ -141,11 +103,11 @@ export default function LoginScreen() {
             </View>
 
             {/* Forgot Password Link */}
-            <Link href="/(auth)/forgot-password" asChild>
+            {/* <Link href="/(auth)/forgot-password" asChild>
               <TouchableOpacity style={styles.forgotPassword}>
                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
               </TouchableOpacity>
-            </Link>
+            </Link> */}
 
             {/* Login Button */}
             <TouchableOpacity
@@ -159,24 +121,8 @@ export default function LoginScreen() {
               </Text>
             </TouchableOpacity>
 
-            {/* Demo Credentials */}
-            <View style={styles.demoContainer}>
-              <Text style={styles.demoTitle}>Demo Credentials:</Text>
-              <Text style={styles.demoText}>Email: any@email.com</Text>
-              <Text style={styles.demoText}>Phone: any phone number</Text>
-              <Text style={styles.demoText}>Password: password123 or demo</Text>
-            </View>
           </View>
 
-          {/* Register Link */}
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Don't have an account? </Text>
-            <Link href="/(auth)/register" asChild>
-              <TouchableOpacity>
-                <Text style={styles.registerLink}>Register Here</Text>
-              </TouchableOpacity>
-            </Link>
-          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -200,6 +146,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 32,
   },
+  logo: {
+    width: 200, // Adjust size as needed
+    height: 200, // Adjust size as needed
+    marginBottom: 6,
+  },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
@@ -213,38 +164,6 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 24,
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  toggleButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 8,
-    gap: 8,
-  },
-  activeToggle: {
-    backgroundColor: '#2563eb',
-  },
-  toggleText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6b7280',
-  },
-  activeToggleText: {
-    color: '#ffffff',
   },
   inputContainer: {
     flexDirection: 'row',
